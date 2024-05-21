@@ -155,7 +155,7 @@
 
     curl_close($ch);
 
-    $url = "https://aitema2.cognitiveservices.azure.com/formrecognizer/v2.1/prebuilt/invoice/analyze";
+    $url = "https://aitema2.cognitiveservices.azure.com/formrecognizer/v3.0/prebuilt/invoice/analyze";
     $headers = array(
       "Content-Type: application/json",
       "Ocp-Apim-Subscription-Key: 14e9d4e4cfcf47dc835486a752ce134d"
