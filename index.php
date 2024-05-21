@@ -109,7 +109,7 @@
   <h1>Form Detection</h1>
   <form method="POST" enctype="multipart/form-data">
     <label for="image">Upload an image:</label>
-    <input type="file" name="image-url" id="image-url" accept="image/*" required>
+    <input type="file" name="image-url" id="image-url" required>
     <br>
     <input type="submit" value="Analyze">
   </form>
