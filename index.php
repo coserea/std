@@ -32,7 +32,7 @@
       margin-bottom: 10px;
     }
 
-    input[type="text"] {
+    input[type="file"] {
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 16px;
@@ -108,8 +108,8 @@
 <body>
   <h1>Form Detection</h1>
   <form method="POST" enctype="multipart/form-data">
-    <label for="image">Upload an image:</label>
-    <input type="file" name="image-url" id="image-url" required>
+    <label for="image">Upload a document:</label>
+    <input type="file" name="file" id="file" required>
     <br>
     <input type="submit" value="Analyze">
   </form>
@@ -119,9 +119,10 @@
     $sasToken = "sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-05-21T21:56:28Z&st=2024-05-21T13:56:28Z&spr=https,http&sig=hSTtsRL54jlw3aq637hsDXOh6Po8WMbFXTKMtHBkec8%3D";
     $storageAccount = "tema2storage";
     $containerName = "container";
-    $blobName = $_FILES['image-url']['name'];
-    $filetoUpload = $_FILES['image-url']['tmp_name'];
+    $blobName = $_FILES['file']['name'];
+    $filetoUpload = $_FILES['file']['tmp_name'];
     $fileLen = filesize($filetoUpload);
+    $fileType = mime_content_type($filetoUpload);
 
     $destinationURL = "https://$storageAccount.blob.core.windows.net/$containerName/$blobName?$sasToken";
     $newURL = "https://$storageAccount.blob.core.windows.net/$containerName/$blobName";
@@ -133,7 +134,7 @@
       'x-ms-blob-type: BlockBlob',
       'x-ms-date: ' . $currentDate,
       'x-ms-version: 2019-07-07',
-      'Content-Type: image/png',
+      'Content-Type: ' . $fileType,
       'Content-Length: ' . $fileLen
     ];
 
