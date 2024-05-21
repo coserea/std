@@ -115,9 +115,7 @@
   </form>
   <br><br>
   <?php
-
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $sasToken = "sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-05-21T21:56:28Z&st=2024-05-21T13:56:28Z&spr=https,http&sig=hSTtsRL54jlw3aq637hsDXOh6Po8WMbFXTKMtHBkec8%3D";
     $storageAccount = "tema2storage";
     $containerName = "container";
@@ -156,15 +154,15 @@
 
     curl_close($ch);
 
-    $imageUrl = $_POST["image-url"]["name"];
     $url = "https://aitema2.cognitiveservices.azure.com/formrecognizer/v2.1/prebuilt/receipt/analyze";
     $headers = array(
       "Content-Type: application/json",
-      "Ocp-Apim-Subscription-Key: 14e9d4e4cfcf47dc835486a752ce134d
+      "Ocp-Apim-Subscription-Key: 14e9d4e4cfcf47dc835486a752ce134d"
     );
 
     $data = array(
-      "url" => $destinationURL);
+      "url" => $destinationURL
+    );
 
     $body = json_encode($data);
 
@@ -206,10 +204,9 @@
       $confidence = $brand['confidence'];
       echo "<p>Brand name: $name</p>";
       echo "<p>Confidence: $confidence</p>";
-      echo "<p>Source: <a href='$imageUrl' target='_blank'>Image</a></p>";
+      echo "<p>Source: <a href='$newURL' target='_blank'>Image</a></p>";
       echo "<br>";
 
-      $imageUrl = $data['url'];
       $currentTime = date('Y-m-d H:i:s', time());
       $stmt->bindParam(':name', $name);
       $stmt->bindParam(':confidence', $confidence);
