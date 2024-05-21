@@ -164,8 +164,7 @@
     );
 
     $data = array(
-      "url" => $destinationURL
-    );
+      "url" => $destinationURL);
 
     $body = json_encode($data);
 
