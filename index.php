@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Brand Analysis</title>
+  <title>Form Detection</title>
   <style>
     body {
       background-color: #f7f7f7;
@@ -106,7 +106,7 @@
 </head>
 
 <body>
-  <h1>Brand Analysis</h1>
+  <h1>Form Detection</h1>
   <form method="POST" enctype="multipart/form-data">
     <label for="image">Upload an image:</label>
     <input type="file" name="image-url" id="image-url" accept="image/*" required>
@@ -181,7 +181,13 @@
 
     $datas = json_decode($response, true);
 
-    $brands = $datas['brands'];
+    // Extragem campurile importante din răspuns
+    $results = [];
+    if (isset($datas['analyzeResult']['documentResults'][0]['fields'])) {
+      foreach ($datas['analyzeResult']['documentResults'][0]['fields'] as $key => $field) {
+        $results[$key] = $field['text'];
+      }
+    }
 
     $serverName = "tema2.database.windows.net";
     $username = "cox";
@@ -195,47 +201,49 @@
       die("Connection failed: " . $e->getMessage());
     }
 
-    $stmt = $conn->prepare("INSERT INTO brand_detection (name, confidence, image_url, detection_time) VALUES (:name, :confidence, :imageUrl, :currentTime)");
+    // Modificăm interogarea SQL pentru noua structură a tabelului
+    $stmt = $conn->prepare("INSERT INTO FileUploads (Nume, Adresa, Timestamp, Rezultat_Procesare) VALUES (:name, :address, :timestamp, :processingResult)");
 
-    echo '<h2>Brand Analysis Results:</h2>';
+    echo '<h2>Form Detection Results:</h2>';
     $aux = 0;
-    foreach ($brands as $brand) {
-      $name = $brand['name'];
-      $confidence = $brand['confidence'];
-      echo "<p>Brand name: $name</p>";
-      echo "<p>Confidence: $confidence</p>";
-      echo "<p>Source: <a href='$newURL' target='_blank'>Image</a></p>";
-      echo "<br>";
+    foreach ($results as $key => $value) {
+      echo "<p>$key: $value</p>";
+    }
 
-      $currentTime = date('Y-m-d H:i:s', time());
-      $stmt->bindParam(':name', $name);
-      $stmt->bindParam(':confidence', $confidence);
-      $stmt->bindParam(':imageUrl', $newURL);
-      $stmt->bindParam(':currentTime', $currentTime);
-      try {
-        $stmt->execute();
-        $aux = 1;
-      } catch (PDOException $e) {
-        echo "Error executing SQL statement: " . $e->getMessage();
-      }
+    $name = $blobName;
+    $address = $newURL;
+    $timestamp = date('Y-m-d H:i:s', time());
+    $processingResult = json_encode($results);
+
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':address', $address);
+    $stmt->bindParam(':timestamp', $timestamp);
+    $stmt->bindParam(':processingResult', $processingResult);
+
+    try {
+      $stmt->execute();
+      $aux = 1;
+    } catch (PDOException $e) {
+      echo "Error executing SQL statement: " . $e->getMessage();
     }
 
     if ($aux == 0) {
-      echo '<p>No Brand Detected.</p>';
+      echo '<p>No data processed.</p>';
     }
 
-    $query = "SELECT * FROM brand_detection";
+    $query = "SELECT * FROM FileUploads";
     $result = $conn->query($query);
 
-    echo '<h2>Brand Analysis History:</h2>';
+    echo '<h2>Form Detection History:</h2>';
     echo "<table>";
-    echo "<tr><th>Name</th><th>Confidence</th><th>Image URL</th><th>Detection Time</th></tr>";
+    echo "<tr><th>ID</th><th>Name</th><th>Address</th><th>Timestamp</th><th>Processing Result</th></tr>";
     while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
       echo "<tr>";
-      echo "<td>" . $row['name'] . "</td>";
-      echo "<td>" . $row['confidence'] . "</td>";
-      echo "<td><a href='" . $row['image_url'] . "'target='_blank'>" . $row['image_url'] . "</a></td>";
-      echo "<td>" . $row['detection_time'] . "</td>";
+      echo "<td>" . $row['ID'] . "</td>";
+      echo "<td>" . $row['Nume'] . "</td>";
+      echo "<td><a href='" . $row['Adresa'] . "' target='_blank'>" . $row['Adresa'] . "</a></td>";
+      echo "<td>" . $row['Timestamp'] . "</td>";
+      echo "<td>" . $row['Rezultat_Procesare'] . "</td>";
       echo "</tr>";
     }
     echo "</table>";
